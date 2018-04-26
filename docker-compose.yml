@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  mysql_server:
+    image: mysql
+    restart: always
+    volumes:
+      - ./.data/mysql_server:/var/lib/mysql
+    ports:
+      - ${MYSQL_BIND_PORT:-5000}:3306
+    env_file:
+      - .env
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    ports:
+      - ${PMA_BIND_PORT:-5001}:80
+    env_file:
+      - .env
+    depends_on:
+      - mysql_server
+    links:
+      - mysql_server
+  wordpress:
+    image: wordpress
+    restart: always
+    volumes:
+      - ./application/wp-content/themes:/var/www/html/wp-content/themes
+      - ./application/wp-content/plugins:/var/www/html/wp-content/plugins
+    ports:
+      - ${WORDPRESS_BIND_PORT:-5002}:80
+    env_file:
+      - .env
+    depends_on:
+      - mysql_server
+    links:
+      - mysql_server
+
+
